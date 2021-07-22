@@ -4,7 +4,7 @@ const router = require("./routers/router")
 const routerResponse = require("./middlewares/RouterResponse/index")
 const bodyParser = require("koa-bodyparser")
 
-
+// 解析post请求参数
 app.use(bodyParser())
 
 // 判断是否有权限

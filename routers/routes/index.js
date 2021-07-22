@@ -1,5 +1,8 @@
+// public
 const login = require("./public/login")
 
+// music
+const getSearchByKey = require("./music/getSearch")
 
 
 
@@ -10,5 +13,6 @@ const login = require("./public/login")
 
 
 module.exports = {
-  login
+  login,
+  getSearchByKey
 }
