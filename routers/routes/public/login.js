@@ -8,5 +8,4 @@ module.exports = async (ctx, next) => {
     },
     message: "成功"
   })
-  next()
 }

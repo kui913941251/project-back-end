@@ -6,11 +6,12 @@ module.exports = async (ctx, next) => {
     {
       pageNum: 1,
       pageSize: 10,
-      keyword: "周杰伦"
+      keyword: "周"
     }
   )
   ctx.success({
-    data: res
+    data: 'res.data'
   }) 
+  console.log("------------");
   next()
 }

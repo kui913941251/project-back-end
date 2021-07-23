@@ -1,6 +1,6 @@
 const request = require("../../../utils/request")
 
-function aetSearchByKey(params) {
+function apiSearchByKey(params) {
   return request({
     url: "https://c.y.qq.com/soso/fcgi-bin/client_search_cp",
     params: {
@@ -12,4 +12,4 @@ function aetSearchByKey(params) {
   })
 }
 
-module.exports = aetSearchByKey
+module.exports = apiSearchByKey

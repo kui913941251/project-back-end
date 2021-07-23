@@ -2,7 +2,11 @@ const Koa = require('koa');
 const app = new Koa();
 const router = require("./routers/router")
 const routerResponse = require("./middlewares/RouterResponse/index")
+const catchError = require("./middlewares/catchError/index")
 const bodyParser = require("koa-bodyparser")
+const koaLogger = require("koa-logger")
+
+app.use(catchError)
 
 // 解析post请求参数
 app.use(bodyParser())
@@ -11,23 +15,9 @@ app.use(bodyParser())
 // app.use()
 
 // 打印请求信息
-app.use(async (ctx, next) => {
-  await next();
-  const rt = ctx.response.get('X-Response-Time');
-  console.log(`${ctx.method} ${ctx.url} - ${rt}`);
-});
-// 设置请求时间
-app.use(async (ctx, next) => {
-  const start = Date.now();
-  await next();
-  const ms = Date.now() - start;
-  ctx.set('X-Response-Time', `${ms}ms`);
-});
-
+app.use(koaLogger())
 // 设置全局返回参数
 app.use(routerResponse())
-
-
 // 设置路由
 app.use(router.routes())
 app.use(router.allowedMethods())
