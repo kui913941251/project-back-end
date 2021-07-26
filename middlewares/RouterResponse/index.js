@@ -20,7 +20,7 @@ function routerResponse(options = {}) {
       }
     }
 
-    next()
+    await next()
   }
 }
 

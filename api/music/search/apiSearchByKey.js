@@ -1,4 +1,4 @@
-const request = require("../../../utils/request")
+const request = require("../../../utils/request");
 
 function apiSearchByKey(params) {
   return request({
@@ -7,9 +7,9 @@ function apiSearchByKey(params) {
       p: params.pageNum,
       n: params.pageSize,
       w: params.keyword,
-      format: "json"
-    }
-  })
+      format: "json",
+    },
+  });
 }
 
-module.exports = apiSearchByKey
+module.exports = apiSearchByKey;

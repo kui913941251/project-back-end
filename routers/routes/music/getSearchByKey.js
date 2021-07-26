@@ -1,6 +1,5 @@
 const { apiSearchByKey } = require("../../../api/index")
 
-
 module.exports = async (ctx, next) => {
   let res = await apiSearchByKey(
     {
@@ -10,8 +9,6 @@ module.exports = async (ctx, next) => {
     }
   )
   ctx.success({
-    data: 'res.data'
+    data: res.data
   }) 
-  console.log("------------");
-  next()
 }

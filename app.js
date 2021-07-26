@@ -19,8 +19,7 @@ app.use(koaLogger())
 // 设置全局返回参数
 app.use(routerResponse())
 // 设置路由
-app.use(router.routes())
-app.use(router.allowedMethods())
+app.use(router.routes()).use(router.allowedMethods())
 
 app.listen(3000, () => {
   console.log("Server is running at http://localhost:3000");
