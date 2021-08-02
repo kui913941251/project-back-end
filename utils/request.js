@@ -7,10 +7,10 @@ instance.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlenco
 function request(config) {
 
   instance.interceptors.response.use(function(response) {
-    console.log("------------------");
-    console.log(response.data);
-    console.log("------------------");
-    return response.data
+    return response
+  }, function(err) {
+    console.log(err);
+    return err
   })
 
   return instance(config)

@@ -6,7 +6,7 @@ function routerResponse(options = {}) {
         code: payload.code || 200,
         success: true,
         message: payload.message || "success",
-        data: payload.data
+        data: payload.data 
       }
     }
 

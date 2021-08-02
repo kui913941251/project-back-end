@@ -1,6 +1,7 @@
 const request = require("../../../utils/request");
 
 function apiSearchByKey(params) {
+  console.log(params);
   return request({
     url: "https://c.y.qq.com/soso/fcgi-bin/client_search_cp",
     params: {
