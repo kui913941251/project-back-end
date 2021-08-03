@@ -10,6 +10,7 @@
     "koa-bodyparser": "^4.3.0",
     "koa-logger": "^3.2.1",
     "mongodb": "^4.0.1",
+    "mysql": "^2.18.1",
     "nodemon": "^2.0.12"
   },
   "devDependencies": {},
