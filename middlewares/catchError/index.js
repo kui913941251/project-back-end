@@ -1,11 +1,9 @@
-const catchError = async (ctx,next)=>{
-  try{
-      await next()
-  } catch(error){
-      if(error.errorCode){
-          return ctx.body = error.msg
-      }
+const catchError = async (ctx, next) => {
+  try {
+    await next();
+  } catch (err) {
+    console.log(err);
   }
-}
+};
 
-module.exports = catchError
+module.exports = catchError;
