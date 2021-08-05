@@ -15,8 +15,8 @@ function routerResponse(options = {}) {
       ctx.body = {
         code: payload.code || 400,
         success: false,
-        message: payload.message,
-        data: ""
+        message: payload.message || "请求失败",
+        data: null
       }
     }
 
