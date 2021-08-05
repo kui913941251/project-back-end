@@ -1,7 +1,7 @@
 module.exports = {
   // 数据库配置
   database: {
-    DATABASE: 'user',
+    DATABASE: 'personal',
     USERNAME: 'root',
     PASSWORD: 'A.kui19970518',
     PORT: '3306',
