@@ -1,9 +1,10 @@
 // public
-const login = require("./public/login")
-const getUserList = require("./public/getUserList")
+const userLogin = require("./public/userLogin")
+const userRegister = require("./public/userRegister")
+const userList = require("./public/userList")
 
 // music
-const getSearchByKey = require("./music/getSearchByKey")
+const searchByKey = require("./music/getSearchByKey")
 
 
 
@@ -14,7 +15,8 @@ const getSearchByKey = require("./music/getSearchByKey")
 
 
 module.exports = {
-  login,
-  getUserList,
-  getSearchByKey
+  userLogin,
+  userRegister,
+  userList,
+  searchByKey
 }
