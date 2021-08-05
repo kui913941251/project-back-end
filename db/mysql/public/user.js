@@ -1,9 +1,11 @@
 const mysql = require("../mysql")
 
+const tableName = "base_user"
+
 // 获取用户列表
-exports.getUserList = async ({pageNum, pageSize}) => {
+exports.sqlGetUserList = async ({pageNum, pageSize}) => {
   const start = (pageNum - 1) * pageSize
-  let sql = "select count(*) from base_user;select username,create_time as createTime from base_user limit ?,?;"
+  let sql = `select count(*) from ${tableName};select username,create_time as createTime from ${tableName} limit ?,?;`
   let res = await mysql.query(sql, [start,pageSize])
   let total = res[0][0]["count(*)"]
   return {
@@ -13,3 +15,11 @@ exports.getUserList = async ({pageNum, pageSize}) => {
   }
 }
 
+// 新建用户
+exports.sqlAddUser = async ({username, password}) => {
+  let sql = `insert into ${tableName} (username,password) values (?,?)`
+  let res = await mysql.query(sql, [username,password])
+  return {
+    res
+  }
+}
