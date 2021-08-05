@@ -3,10 +3,11 @@ const router = new Router();
 const routes = require("./routes/index")
 const config = require("./config")
 // public
-router.post("/public/login", routes.login)
-router.get("/public/user", routes.getUserList)
+router.post("/public/user/login", routes.userLogin)
+router.post("/public/user/register", routes.userRegister)
+router.get("/public/user/list", routes.userList)
 
 // music
-router.get("/music/getSearchByKey", routes.getSearchByKey)
+router.get("/music/getSearchByKey", routes.searchByKey)
 
 module.exports = router
