@@ -11,9 +11,11 @@ module.exports = async (ctx, next) => {
       username,
       password,
     });
+    console.log(res);
     ctx.success({
-      data: res,
-      message: "成功",
+      data: res.data,
+      success: res.success,
+      message: res.message || "成功",
     });
   }
 };

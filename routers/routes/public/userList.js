@@ -10,8 +10,8 @@ module.exports = async (ctx, next) => {
     data: {
       pageNum,
       pageSize,
-      ...res
+      ...res.data
     },
-    message: "成功",
+    message: res.message || "成功",
   });
 };
