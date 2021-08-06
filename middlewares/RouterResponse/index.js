@@ -1,22 +1,21 @@
 function routerResponse(options = {}) {
   return async function(ctx, next) {
-    ctx.success = function(payload) {
-      ctx.type = payload.type || "json"
+    ctx.success = function({type = "json", code = 200, success = true, message = "success", data}) {
+      ctx.type = type
       ctx.body = {
-        code: payload.code || 200,
-        success: true,
-        message: payload.message || "success",
-        data: payload.data 
+        code,
+        success,
+        message,
+        data
       }
     }
 
-    ctx.fail = function(payload) {
-      ctx.type = payload.type || "json"
+    ctx.fail = function({type = "json", code = 400, message = "请求失败"}) {
+      ctx.type = type
       ctx.body = {
-        code: payload.code || 400,
+        code,
         success: false,
-        message: payload.message || "请求失败",
-        data: null
+        message
       }
     }
 

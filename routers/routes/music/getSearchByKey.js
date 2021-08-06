@@ -1,8 +1,8 @@
-const { apiSearchByKey } = require("../../../api/index")
+const { apiMusicSearchByKey } = require("../../../api/index")
 
 module.exports = async (ctx, next) => {
   let {keyword, pageNum, pageSize} = ctx.query
-  let res = await apiSearchByKey(
+  let res = await apiMusicSearchByKey(
     {
       pageNum: pageNum || 1,
       pageSize: pageSize || 10,

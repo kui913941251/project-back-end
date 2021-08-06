@@ -1,8 +1,12 @@
-const apiSearchByKey = require("./music/search/apiSearchByKey")
+const apiMusicSearchByKey = require("./music/search/apiSearchByKey")
+const apiMusicLyric = require("./music/lyric/apiLyric")
+const apiMusicUrl = require("./music/musicUrl/musicUrl")
 
 
 
 
 module.exports = {
-  apiSearchByKey
+  apiMusicSearchByKey,
+  apiMusicLyric,
+  apiMusicUrl
 }
