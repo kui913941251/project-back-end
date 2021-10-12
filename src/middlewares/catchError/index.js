@@ -3,6 +3,7 @@ const catchError = async (ctx, next) => {
     await next();
   } catch (err) {
     console.log(err);
+    ctx.fail({message: "something is error"})
   }
 };
 

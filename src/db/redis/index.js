@@ -8,7 +8,10 @@ const client = redis.createClient({
 });
 
 
-client.set("mykey", "123123123123123", () => {
-  console.log("success");
-  client.end()
-})
+// client.set("mykey", "123123123123123", () => {
+//   console.log("success");
+//   client.end()
+// })
+
+
+module.exports = client

@@ -1,6 +1,6 @@
 function routerResponse(options = {}) {
   return async function(ctx, next) {
-    ctx.success = function({type = "json", code = 200, success = true, message = "success", data}) {
+    ctx.success = function({type = "json", code = 200, success = true, message = "success", data} = {}) {
       ctx.type = type
       ctx.body = {
         code,
@@ -10,7 +10,7 @@ function routerResponse(options = {}) {
       }
     }
 
-    ctx.fail = function({type = "json", code = 400, message = "请求失败"}) {
+    ctx.fail = function({type = "json", code = 400, message = "请求失败"} = {}) {
       ctx.type = type
       ctx.body = {
         code,
