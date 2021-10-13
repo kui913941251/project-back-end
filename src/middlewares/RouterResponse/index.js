@@ -10,7 +10,8 @@ function routerResponse(options = {}) {
       }
     }
 
-    ctx.fail = function({type = "json", code = 400, message = "请求失败"} = {}) {
+    ctx.fail = function({type = "json", code = 400, message = "请求失败", status = ""} = {}) {
+      status ? ctx.status = status : ""
       ctx.type = type
       ctx.body = {
         code,
