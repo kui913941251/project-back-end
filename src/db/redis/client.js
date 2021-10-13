@@ -56,8 +56,12 @@ class Client {
     }
   }
 
-  expire(...arg) {
-    return this.redis.expire(arg)
+  async expire(key, time) {
+    try {
+      return await this.redis.expire(this.keyStart + key, time)
+    } catch (err) {
+      console.error(this.type + ' redis:expire Error'.red, err)
+    }
   }
 }
 
