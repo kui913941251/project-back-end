@@ -52,11 +52,12 @@ class UserController {
 
   async captcha(ctx) {
     let { username } = ctx.request.query
+    if (!username) {
+      return ctx.fail({message: "请传入用户名"})
+    }
     let captcha = generateCaptcha()
-    console.log(captcha);
     captchaRedis.set(username, captcha.text.toLowerCase())
     captchaRedis.expire(username, 60)
-    // ctx.success({data: captcha.data})
     ctx.body = captcha.data
   }
 
