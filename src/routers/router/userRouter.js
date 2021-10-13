@@ -8,5 +8,6 @@ userRouter
   .post('/user/login', UserController.login)
   .post('/user/delete', UserController.deleteUser)
   .post("/user/list", UserController.userList)
+  .post("/user/logout", UserController.logout)
 
 module.exports = userRouter

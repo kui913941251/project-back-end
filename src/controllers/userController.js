@@ -40,6 +40,23 @@ class UserController {
     }
   }
 
+  async logout(ctx, next) {
+    let token = ctx.get("Authorization")
+    if (!token) {
+      ctx.fail({message: "请传入token"})
+    }else {
+      let user = await tokenRedis.get(token)
+      if (!user) {
+        ctx.fail({message: "请传入正确的token"})
+      }else {
+        tokenRedis.destroy(user.token)
+        userRedis.destroy(user.username)
+        ctx.success({message: "退出成功"})
+      }
+      console.log(user);
+    }
+  }
+
   async registerUser(ctx, next) {
     try {
       const { username, password } = ctx.request.body
