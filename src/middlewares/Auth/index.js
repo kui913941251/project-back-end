@@ -1,10 +1,12 @@
 const config = require('./config')
 
+const { getUrl } = require('@/utils/CommomUtils')
 const { tokenRedis } = require('@/db/redis')
 
 module.exports = async function (ctx, next) {
   let { url } = ctx
-  if (config.whiteList.indexOf(url) === -1) {
+  console.log(ctx.req)
+  if (config.whiteList.indexOf(getUrl(url)) === -1) {
     try {
       let token = ctx.get('Authorization')
       let user = await tokenRedis.get(token)

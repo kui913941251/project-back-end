@@ -9,5 +9,6 @@ userRouter
   .post('/user/delete', UserController.deleteUser)
   .post("/user/list", UserController.userList)
   .post("/user/logout", UserController.logout)
+  .get("/user/captcha", UserController.captcha)
 
 module.exports = userRouter

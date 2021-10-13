@@ -1,18 +1,28 @@
 const UserDao = require('@/models/Dao/UserDao')
 const pageUtil = require('@/utils/pageUtil')
 const { getToken } = require('@/utils/AuthUtils')
-const { tokenRedis, userRedis } = require('@/db/redis')
+const { tokenRedis, userRedis, captchaRedis } = require('@/db/redis')
+const generateCaptcha = require('@/utils/captcha')
 const expires = 3600 * 24 * 1 // 默认一天
 
 class UserController {
   constructor() {}
   async login(ctx, next) {
-    const { username, password } = ctx.request.body
+    const { username, password, captcha } = ctx.request.body
     if (!username) {
       return ctx.fail({ message: '请传入用户名' })
     } else if (!password) {
       return ctx.fail({ message: '请传入密码' })
+    }else if (!captcha) {
+      return ctx.fail({ message: '请传入验证码' })
     }
+
+    let saveCaptcha = await captchaRedis.get(username)
+    if (saveCaptcha !== captcha.toLowerCase()) {
+      ctx.fail({message: "验证码不正确"})
+      return 
+    }
+
     let res = await UserDao.login(username, password)
     if (res.length === 1) {
       let user = res[0]
@@ -40,20 +50,30 @@ class UserController {
     }
   }
 
+  async captcha(ctx) {
+    let { username } = ctx.request.query
+    let captcha = generateCaptcha()
+    console.log(captcha);
+    captchaRedis.set(username, captcha.text.toLowerCase())
+    captchaRedis.expire(username, 60)
+    // ctx.success({data: captcha.data})
+    ctx.body = captcha.data
+  }
+
   async logout(ctx, next) {
-    let token = ctx.get("Authorization")
+    let token = ctx.get('Authorization')
     if (!token) {
-      ctx.fail({message: "请传入token"})
-    }else {
+      ctx.fail({ message: '请传入token' })
+    } else {
       let user = await tokenRedis.get(token)
       if (!user) {
-        ctx.fail({message: "请传入正确的token"})
-      }else {
+        ctx.fail({ message: '请传入正确的token' })
+      } else {
         tokenRedis.destroy(user.token)
         userRedis.destroy(user.username)
-        ctx.success({message: "退出成功"})
+        ctx.success({ message: '退出成功' })
       }
-      console.log(user);
+      console.log(user)
     }
   }
 
