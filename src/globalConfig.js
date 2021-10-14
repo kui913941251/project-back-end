@@ -1,3 +1,4 @@
 module.exports = {
-  secretKey: "qweASD123"
+  tokenSalt: "qweASD123",
+  passwordSalt: "!@#$1234qwer"
 }

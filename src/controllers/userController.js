@@ -1,6 +1,6 @@
 const UserDao = require('@/models/Dao/UserDao')
 const pageUtil = require('@/utils/pageUtil')
-const { getToken } = require('@/utils/AuthUtils')
+const { getToken, encryptedPassword } = require('@/utils/AuthUtils')
 const { tokenRedis, userRedis, captchaRedis } = require('@/db/redis')
 const generateCaptcha = require('@/utils/captcha')
 const expires = 3600 * 24 * 1 // 默认一天
@@ -13,34 +13,45 @@ class UserController {
       return ctx.fail({ message: '请传入用户名' })
     } else if (!password) {
       return ctx.fail({ message: '请传入密码' })
-    }else if (!captcha) {
+    } else if (!captcha) {
       return ctx.fail({ message: '请传入验证码' })
     }
 
     let saveCaptcha = await captchaRedis.get(username)
     if (saveCaptcha !== captcha.toLowerCase()) {
-      ctx.fail({message: "验证码不正确"})
-      return 
+      ctx.fail({ message: '验证码不正确' })
+      return
     }
 
     let res = await UserDao.login(username, password)
     if (res.length === 1) {
       let user = res[0]
-      // 获取上次用户登录的token
+      // 获取上次用户登录的token，存在则清除
       let userLoginInfo = await userRedis.get(user.username)
       userLoginInfo && tokenRedis.destroy(userLoginInfo.token)
       // redis设置token
       let token = getToken(user.id)
       user.expires = Date.now() + expires * 1000
       user.token = token
-      tokenRedis.set(token, user)
-      tokenRedis.expire(token, expires)
-      // redis记录当前用户登录的token
-      userRedis.set(user.username, {
-        token,
-        ...user,
+      let tokenSetRes = await tokenRedis.setex(token, expires, user).catch((err) => {
+        console.log(err)
       })
-      userRedis.expire(user.username, expires)
+      if (!tokenSetRes) {
+        return ctx.fail({ message: '登录失败' })
+      }
+      // redis记录当前用户登录的token
+      let userSetRes = await userRedis
+        .setex(user.username, expires, {
+          token,
+          ...user,
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      if (!userSetRes) {
+        return ctx.fail({ message: '登录失败' })
+      }
+      captchaRedis.destroy(username)
       ctx.success({
         message: '登录成功',
         data: token,
@@ -53,12 +64,17 @@ class UserController {
   async captcha(ctx) {
     let { username } = ctx.request.query
     if (!username) {
-      return ctx.fail({message: "请传入用户名"})
+      return ctx.fail({ message: '请传入用户名' })
     }
     let captcha = generateCaptcha()
-    captchaRedis.set(username, captcha.text.toLowerCase())
-    captchaRedis.expire(username, 60)
-    ctx.body = captcha.data
+    let setRes = await captchaRedis.setex(username, 60, captcha.text.toLowerCase()).catch((err) => {
+      throw err
+    })
+    if (setRes) {
+      ctx.body = captcha.data
+    } else {
+      ctx.fail({ message: '验证码生成失败' })
+    }
   }
 
   async logout(ctx, next) {
@@ -94,7 +110,7 @@ class UserController {
         return ctx.fail({ message: '用户名已存在' })
       }
 
-      let res = await UserDao.register(username, password)
+      let res = await UserDao.register(username, encryptedPassword(password))
 
       if (res.affectedRows === 1) {
         ctx.success({

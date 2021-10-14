@@ -1,7 +1,7 @@
 const config = require('./config')
 
 const { getUrl } = require('@/utils/CommomUtils')
-const { tokenRedis } = require('@/db/redis')
+const { tokenRedis, userRedis } = require('@/db/redis')
 
 const router = require('@/routers/index')
 const routers = router.stack.map((item) => item.path)
@@ -19,6 +19,7 @@ module.exports = async function (ctx, next) {
           ctx.fail({ message: '登录已过期，请重新登录' })
         } else if (user.expires < Date.now()) {
           tokenRedis.destroy(token)
+          userRedis.destroy(user.username)
           ctx.fail({ message: '登录已过期，请重新登录' })
         } else {
           await next()

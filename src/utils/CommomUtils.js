@@ -1,5 +1,4 @@
 const cryptojs = require('crypto-js')
-const globalConfig = require('../globalConfig')
 
 function toSimpleObject(target) {
   let simpleObj = {}
@@ -10,11 +9,10 @@ function toSimpleObject(target) {
 }
 
 function toSha256(value) {
-  return cryptojs.SHA256(value + globalConfig.secretKey).toString()
+  return cryptojs.SHA256(value).toString()
 }
 
 function getUrl(url) {
-  console.log(url)
   if (url.indexOf('?') !== -1) {
     url = url.split('?')[0]
   }
