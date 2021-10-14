@@ -9,6 +9,11 @@ function createRedisClient() {
     port: config.PORT,
     password: config.PASSWORD,
   })
+
+  client.on('error', function (err) {
+    console.log('Error: ' + err.stack)
+  })
+
   return client
 }
 class Client {
@@ -16,10 +21,7 @@ class Client {
     this.redis = client || createRedisClient()
     this.type = type
     this.keyStart = type ? type + '-' : ''
-    this.options = {
-      timeout: 1 * 24 * 60 * 60, // 默认一天
-      ...options,
-    }
+    this.options = { ...options }
   }
 
   async set(key, val) {
@@ -30,16 +32,26 @@ class Client {
     }
   }
 
+  async setex(key, seconds, val) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.redis.setex(this.keyStart + key, seconds, JSON.stringify(val), function (err) {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(true)
+          }
+        })
+      } catch (err) {
+        console.error(this.type + ' redis:setex Error'.red, err)
+      }
+    })
+  }
+
   async get(key) {
     return new Promise((resolve, reject) => {
       try {
         this.redis.get(this.keyStart + key, function (err, res) {
-          // if (res.time && Date.now() - res.time > this.options.timeout - 10) {
-          //   this.destroy(this.type + key)
-          //   resolve(null)
-          // } else {
-          //   resolve(res)
-          // }
           resolve(JSON.parse(res))
         })
       } catch (err) {
