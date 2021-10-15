@@ -12,7 +12,7 @@ module.exports = async function (ctx, next) {
   // 判断当前路径是否为已注册路由
   if (routers.indexOf(getUrl(url)) !== -1) {
     if (config.whiteList.indexOf(getUrl(url)) === -1) {
-      try {
+      // try {
         let token = ctx.get('Authorization')
         let user = await tokenRedis.get(token)
         if (!user) {
@@ -24,9 +24,9 @@ module.exports = async function (ctx, next) {
         } else {
           await next()
         }
-      } catch (error) {
-        ctx.fail({ message: 'token is error, please relogin', status: 401 })
-      }
+      // } catch (error) {
+      //   ctx.fail({ message: 'token is error, please relogin', status: 401 })
+      // }
     } else {
       await next()
     }

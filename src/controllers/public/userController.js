@@ -1,5 +1,5 @@
 const UserDao = require('@/models/Dao/UserDao')
-const pageUtil = require('@/utils/pageUtil')
+const PageUtil = require('@/utils/PageUtil')
 const { getToken, encryptedPassword } = require('@/utils/AuthUtils')
 const { tokenRedis, userRedis, captchaRedis } = require('@/db/redis')
 const generateCaptcha = require('@/utils/captcha')
@@ -131,7 +131,7 @@ class UserController {
       let res = await UserDao.userList(pageNum, pageSize)
 
       if (res.length === 2) {
-        ctx.success({ data: pageUtil(res, pageNum, pageSize) })
+        ctx.success({ data: PageUtil(res, pageNum, pageSize) })
       }
     } catch (error) {}
   }

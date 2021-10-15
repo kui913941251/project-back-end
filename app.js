@@ -5,19 +5,19 @@ const koaBody = require("koa-body")
 const koaLogger = require('koa-logger')
 
 const routers = require("@/routers/index")
-const routerResponse = require('@/middlewares/RouterResponse/index')
-const catchError = require('@/middlewares/catchError/index')
-const Auth = require('@/middlewares/Auth/index')
+const RouterResponse = require('@/middlewares/RouterResponse/index')
+const CatchError = require('@/middlewares/CatchError/index')
+const LoginVerify = require('@/middlewares/LoginVerify/index')
 
 const app = new Koa()
 
-app.use(catchError)
+app.use(CatchError)
 
 // 设置全局返回参数
-app.use(routerResponse())
+app.use(RouterResponse())
 
 // 是否登录
-app.use(Auth)
+app.use(LoginVerify)
 
 // 解析post请求参数
 // app.use(bodyParser())

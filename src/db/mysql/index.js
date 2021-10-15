@@ -29,14 +29,6 @@ class Mysql {
           resolve(results)
         })
       })
-
-      // pool.query(sql, values, function (error, results, fields) {
-      //   if (error) {
-      //     throw error;
-      //   }
-      //   resolve(results);
-      //   // pool.end();
-      // });
     })
   }
 }
