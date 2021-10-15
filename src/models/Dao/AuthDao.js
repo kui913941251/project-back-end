@@ -18,6 +18,11 @@ class AuthDao {
     const sql = `insert into system_auth (auth_name, auth_code, pid) values (?,?,?)`
     return await db.query(sql, [authName, authCode, pid])
   }
+
+  async update({ authName, authCode, authId }) {
+    const sql = `update system_auth set auth_name = ? , auth_code = ? where id = ?`
+    return await db.query(sql, [authName, authCode, authId])
+  }
 }
 
 module.exports = new AuthDao()

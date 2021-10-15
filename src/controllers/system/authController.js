@@ -45,7 +45,24 @@ class AuthController {
     }
   }
 
+  async update(ctx) {
+    let { authName, authCode, authId } = ctx.request.body
+    if (!authName) {
+      return ctx.fail({ message: '请传入权限名称' })
+    } else if (!authCode) {
+      return ctx.fail({ message: '请传入权限标识' })
+    } else if (!authId) {
+      return ctx.fail({ message: '请传入权限id' })
+    }
 
+    let res = await AuthDao.update({ authName, authCode, authId })
+
+    if (res.affectedRows === 1) {
+      ctx.success({ message: '修改成功' })
+    } else {
+      ctx.fail({ message: '修改失败' })
+    }
+  }
 }
 
 module.exports = new AuthController()

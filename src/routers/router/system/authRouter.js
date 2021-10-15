@@ -4,6 +4,9 @@ const LoginVerify = require('@/middlewares/LoginVerify')
 
 const authRouter = new Router({ prefix: '/system' })
 
-authRouter.post('/auth/add', LoginVerify, authController.add).post('/auth/tree', LoginVerify, authController.tree)
+authRouter
+  .post('/auth/tree', LoginVerify, authController.tree)
+  .post('/auth/add', LoginVerify, authController.add)
+  .post('/auth/update', LoginVerify, authController.update)
 
 module.exports = authRouter
