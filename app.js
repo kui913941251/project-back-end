@@ -1,13 +1,12 @@
-require('module-alias/register')   // 路径别名
+require('module-alias/register') // 路径别名
 const Koa = require('koa')
 const bodyParser = require('koa-bodyparser')
-const koaBody = require("koa-body")
+const koaBody = require('koa-body')
 const koaLogger = require('koa-logger')
 
-const routers = require("@/routers/index")
+const routers = require('@/routers/index')
 const RouterResponse = require('@/middlewares/RouterResponse/index')
 const CatchError = require('@/middlewares/CatchError/index')
-const LoginVerify = require('@/middlewares/LoginVerify/index')
 
 const app = new Koa()
 
@@ -15,9 +14,6 @@ app.use(CatchError)
 
 // 设置全局返回参数
 app.use(RouterResponse())
-
-// 是否登录
-app.use(LoginVerify)
 
 // 解析post请求参数
 // app.use(bodyParser())
@@ -30,6 +26,11 @@ app.use(koaBody())
 app.use(koaLogger())
 // 设置路由
 app.use(routers.routes())
+
+// 未匹配路由则返回404
+app.use(async function (ctx, next) {
+  ctx.fail({ message: '404 not found', code: 404, status: 404 })
+})
 
 app.listen(3000, () => {
   console.log('Server is running at http://localhost:3000')
