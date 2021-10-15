@@ -1,4 +1,4 @@
-const db = require("@/db/mysql")
+const db = require('@/db/mysql')
 
 const tableName = 'base_user'
 
@@ -15,8 +15,8 @@ class UserDao {
   }
 
   async register(username, password) {
-    const sql = `insert into ${tableName} (username,password,create_time) values (?,?,?)`
-    return await db.query(sql, [username, password, new Date()])
+    const sql = `insert into ${tableName} (username,password) values (?,?)`
+    return await db.query(sql, [username, password])
   }
 
   async userList(pageNum, pageSize) {
@@ -27,9 +27,8 @@ class UserDao {
 
   async deleteUser(username, password) {
     const sql = `delete from ${tableName} where username = ?`
-    return  await db.query(sql, [username, password])
+    return await db.query(sql, [username, password])
   }
 }
-
 
 module.exports = new UserDao()
