@@ -1,12 +1,13 @@
 const Router = require('@koa/router')
 const roleController = require('@/controllers/system/roleController')
+const LoginVerify = require('@/middlewares/LoginVerify')
 
 const roleRouter = new Router({ prefix: '/system' })
 
 roleRouter
-  .post('/role/list', roleController.list)
-  .post('/role/add', roleController.add)
-  .post('/role/update', roleController.update)
-  .post('/role/delete', roleController.delete)
+  .post('/role/list', LoginVerify, roleController.list)
+  .post('/role/add', LoginVerify, roleController.add)
+  .post('/role/update', LoginVerify, roleController.update)
+  .post('/role/delete', LoginVerify, roleController.delete)
 
 module.exports = roleRouter
