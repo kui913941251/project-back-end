@@ -126,14 +126,12 @@ class UserController {
 
   async userList(ctx) {
     const { pageNum = 1, pageSize = 10 } = ctx.request.body
+    
+    let res = await UserDao.userList(pageNum, pageSize)
 
-    try {
-      let res = await UserDao.userList(pageNum, pageSize)
-
-      if (res.length === 2) {
-        ctx.success({ data: PageUtil(res, pageNum, pageSize) })
-      }
-    } catch (error) {}
+    if (res.length === 2) {
+      ctx.success({ data: PageUtil(res, pageNum, pageSize) })
+    }
   }
 
   async deleteUser(ctx) {
