@@ -1,6 +1,6 @@
 const Router = require('@koa/router')
 
-const userRouter = require('./router/public/userRouter')
+const userRouter = require('./router/system/userRouter')
 const roleRouter = require('./router/system/roleRouter')
 const authRouter = require('./router/system/authRouter')
 
