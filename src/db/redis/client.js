@@ -52,7 +52,7 @@ class Client {
     return new Promise((resolve, reject) => {
       try {
         this.redis.get(this.keyStart + key, function (err, res) {
-          resolve(JSON.parse(res))
+          resolve(res && JSON.parse(res))
         })
       } catch (err) {
         console.error(this.type + ' redis:get Error'.red, err)
