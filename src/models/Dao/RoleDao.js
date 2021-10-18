@@ -22,6 +22,16 @@ class RoleDao {
     const sql = `delete from system_role where id = ?`
     return await db.query(sql, [roleId])
   }
+
+  async bindAuth({ roleId, authIdList = [] }) {
+    const deleteSql = `delete from system_role_bind_auth where role_id = ?`
+    await db.query(deleteSql, [roleId])
+    for (let i = 0; i < authIdList.length; i++) {
+      const bindSql = `insert into system_role_bind_auth (role_id, auth_id) values (? , ?)`
+      await db.query(bindSql, [roleId, authIdList[i]])
+    }
+    return true
+  }
 }
 
 module.exports = new RoleDao()

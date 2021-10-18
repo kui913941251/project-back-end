@@ -57,6 +57,22 @@ class RoleController {
       ctx.fail({ message: '删除失败' })
     }
   }
+
+  async bindAuth(ctx) {
+    let { roleId, authIdList } = JSON.parse(ctx.request.body)
+    if (!roleId) {
+      return ctx.fail({ message: '请传入角色id' })
+    } else if (authIdList && !Array.isArray(authIdList)) {
+      return ctx.fail({ message: '请传入权限id数组' })
+    }
+    let res = await RoleDao.bindAuth({ roleId, authIdList })
+
+    if (res) {
+      ctx.success({ message: '绑定成功' })
+    } else {
+      ctx.fail({ message: '绑定失败' })
+    }
+  }
 }
 
 module.exports = new RoleController()
