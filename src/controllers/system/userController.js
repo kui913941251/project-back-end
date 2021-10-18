@@ -23,32 +23,30 @@ class UserController {
       return
     }
 
-    let res = await UserDao.login(username, password)
+    let res = await UserDao.login(username, encryptedPassword(password))
     if (res.length === 1) {
       let user = res[0]
       // 获取上次用户登录的token，存在则清除
-      let userLoginInfo = await userRedis.get(user.username)
-      userLoginInfo && tokenRedis.destroy(userLoginInfo.token)
-      // redis设置token
+      let preToken = await tokenRedis.get(user.username)
+      preToken && userRedis.destroy(preToken)
+      // redis记录用户登录信息
       let token = getToken(user.id)
       user.expires = Date.now() + expires * 1000
       user.token = token
-      let tokenSetRes = await tokenRedis.setex(token, expires, user).catch((err) => {
+      // 获取用户权限
+      let authList = await UserDao.getUserAuthList({ userId: user.id })
+      user.authList = authList && authList.map((item) => item.auth_code)
+      let userSetRes = await userRedis.setex(token, expires, user).catch((err) => {
         console.log(err)
       })
-      if (!tokenSetRes) {
+      if (!userSetRes) {
         return ctx.fail({ message: '登录失败' })
       }
       // redis记录当前用户登录的token
-      let userSetRes = await userRedis
-        .setex(user.username, expires, {
-          token,
-          ...user,
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-      if (!userSetRes) {
+      let tokenSetRes = await tokenRedis.setex(user.username, expires, token).catch((err) => {
+        console.log(err)
+      })
+      if (!tokenSetRes) {
         return ctx.fail({ message: '登录失败' })
       }
       captchaRedis.destroy(username)
@@ -126,7 +124,7 @@ class UserController {
 
   async userList(ctx) {
     const { pageNum = 1, pageSize = 10 } = ctx.request.body
-    
+
     let res = await UserDao.userList(pageNum, pageSize)
 
     if (res.length === 2) {
@@ -153,6 +151,21 @@ class UserController {
       ctx.success({ message: '删除成功' })
     } else {
       ctx.fail({ message: '删除失败' })
+    }
+  }
+
+  async bindRole(ctx) {
+    const { userId, roleIdList = [] } = JSON.parse(ctx.request.body)
+    if (!userId) {
+      return ctx.fail({ message: '请传入用户id' })
+    } else if (!Array.isArray(roleIdList)) {
+      return ctx.fail({ message: '请传入角色id数组' })
+    }
+    let res = await UserDao.bindRole({ userId, roleIdList })
+    if (res) {
+      ctx.success({ message: '绑定成功' })
+    } else {
+      ctx.fail({ message: '绑定失败' })
     }
   }
 }
