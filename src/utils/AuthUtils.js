@@ -1,4 +1,4 @@
-const globalConfig = require('../globalConfig')
+const globalConfig = require('@/config/globalConfig')
 const { toSha256 } = require('./CommomUtils')
 
 function getToken(id) {
@@ -11,5 +11,5 @@ function encryptedPassword(password) {
 
 module.exports = {
   getToken,
-  encryptedPassword
+  encryptedPassword,
 }

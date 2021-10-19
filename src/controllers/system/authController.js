@@ -1,7 +1,7 @@
 const AuthDao = require('@/models/Dao/AuthDao')
 
 async function getAuthTreeByPid(pid = null) {
-  let res = await AuthDao.tree({ pid })
+  let res = await AuthDao.findAuthByPid({ pid })
   if (res && res.length > 0) {
     let arr = []
     for (let i = 0; i < res.length; i++) {
@@ -61,6 +61,25 @@ class AuthController {
       ctx.success({ message: '修改成功' })
     } else {
       ctx.fail({ message: '修改失败' })
+    }
+  }
+
+  async delete(ctx) {
+    let { authId } = ctx.request.body
+    if (!authId) {
+      return ctx.fail({ message: '请传入权限id' })
+    }
+    let childAuth = await AuthDao.findAuthByPid({ pid: authId })
+    if (childAuth.length > 0) {
+      return ctx.fail({ message: '该权限存在子权限，无法删除' })
+    } else {
+      let res = await AuthDao.delete({ authId })
+
+      if (res.affectedRows >= 1) {
+        ctx.success({ message: '删除成功' })
+      } else {
+        return ctx.fail({ message: '删除失败' })
+      }
     }
   }
 }
