@@ -17,13 +17,13 @@ class UserController {
       return ctx.fail({ message: '请传入验证码' })
     }
 
-    let saveCaptcha = await captchaRedis.get(username)
-    if (saveCaptcha !== captcha.toLowerCase()) {
-      ctx.fail({ message: '验证码不正确' })
-      return
-    }
+    // let saveCaptcha = await captchaRedis.get(username)
+    // if (saveCaptcha !== captcha.toLowerCase()) {
+    //   ctx.fail({ message: '验证码不正确' })
+    //   return
+    // }
 
-    let res = await UserDao.login(username, encryptedPassword(password))
+    let res = await UserDao.login({ username, password: encryptedPassword(password) })
     if (res.length === 1) {
       let user = res[0]
       // 获取上次用户登录的token，存在则清除
@@ -102,13 +102,13 @@ class UserController {
         return ctx.fail({ message: '请传入密码' })
       }
 
-      let user = await UserDao.findUser(username)
+      let userRes = await UserDao.findUserByName({ username })
 
-      if (user.length !== 0) {
+      if (userRes && userRes.length !== 0) {
         return ctx.fail({ message: '用户名已存在' })
       }
 
-      let res = await UserDao.register(username, encryptedPassword(password))
+      let res = await UserDao.register({ username, password: encryptedPassword(password) })
 
       if (res.affectedRows === 1) {
         ctx.success({
@@ -125,7 +125,7 @@ class UserController {
   async userList(ctx) {
     const { pageNum = 1, pageSize = 10 } = ctx.request.body
 
-    let res = await UserDao.userList(pageNum, pageSize)
+    let res = await UserDao.userList({ pageNum, pageSize })
 
     if (res.length === 2) {
       ctx.success({ data: PageUtil(res, pageNum, pageSize) })
@@ -133,19 +133,21 @@ class UserController {
   }
 
   async deleteUser(ctx) {
-    const { username } = ctx.request.body
+    const { userId } = ctx.request.body
 
-    if (!username) {
-      return ctx.fail({ message: '请传入用户名' })
+    if (!userId) {
+      return ctx.fail({ message: '请传入用户id' })
     }
 
-    let user = await UserDao.findUser(username)
+    let userRes = await UserDao.findUserById({ userId })
 
-    if (user.length === 0) {
+    if (userRes && userRes.length === 0) {
       return ctx.fail({ message: '该用户不存在' })
     }
 
-    let res = await UserDao.deleteUser(username)
+    let user = userRes[0]
+
+    let res = await UserDao.deleteUser({ userId: user.id })
 
     if (res.affectedRows === 1) {
       ctx.success({ message: '删除成功' })

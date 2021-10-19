@@ -4,30 +4,35 @@ const tableName = 'system_user'
 
 class UserDao {
   constructor() {}
-  async login(username, password) {
+  async login({ username, password }) {
     const sql = `select * from ${tableName} where username = ? and password = ?`
     return await db.query(sql, [username, password])
   }
 
-  async findUser(username) {
+  async findUserById({ userId }) {
+    const sql = `select * from ${tableName} where id = ?`
+    return await db.query(sql, [userId])
+  }
+
+  async findUserByName({ username }) {
     const sql = `select * from ${tableName} where username = ?`
     return await db.query(sql, [username])
   }
 
-  async register(username, password) {
+  async register({ username, password }) {
     const sql = `insert into ${tableName} (username,password) values (?,?)`
     return await db.query(sql, [username, password])
   }
 
-  async userList(pageNum, pageSize) {
+  async userList({ pageNum, pageSize }) {
     const start = (pageNum - 1) * pageSize
-    const sql = `select count(*) from ${tableName};select username,create_time as createTime from ${tableName} limit ?,?`
-    return await db.query(sql, [start, pageSize])
+    const sql = `select count(*) from ${tableName} where is_delete = 0;select username,create_time as createTime from ${tableName} where is_delete = 0 limit ?,?`
+    return await db.query(sql, [start, +pageSize])
   }
 
-  async deleteUser(username, password) {
-    const sql = `delete from ${tableName} where username = ?`
-    return await db.query(sql, [username, password])
+  async deleteUser({ userId }) {
+    const sql = `update ${tableName} set id_delete = 1 where id = ?`
+    return await db.query(sql, [userId])
   }
 
   async bindRole({ userId, roleIdList = [] }) {
