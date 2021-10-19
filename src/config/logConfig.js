@@ -14,11 +14,9 @@ module.exports = {
     errorLogger: {
       type: 'dateFile',
       filename: errorLogPath,
-      pattern: '-yyyy-MM-dd-hh.log',
+      pattern: '-yyyy-MM-dd.log',
       alwaysIncludePattern: true,
       encoding: 'utf-8',
-      maxLogSize: 1000,
-      numBackups: 3,
       path: errorPath,
     },
   },

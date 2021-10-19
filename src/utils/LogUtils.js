@@ -26,7 +26,7 @@ const formatText = {
       // startTime = req.body.requestStartTime;
     }
     //服务器响应时间
-    logText += 'response time: ' + resTime + '\n'
+    logText += 'response time: ' + resTime + ' ms' + '\n'
     return logText
   },
   error: function (ctx, err, resTime) {
