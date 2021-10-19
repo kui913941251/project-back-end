@@ -31,7 +31,7 @@ class UserDao {
   }
 
   async deleteUser({ userId }) {
-    const sql = `update ${tableName} set id_delete = 1 where id = ?`
+    const sql = `update ${tableName} set is_delete = 1 where id = ?`
     return await db.query(sql, [userId])
   }
 
