@@ -1,8 +1,9 @@
 require('module-alias/register') // 路径别名
 const Koa = require('koa')
-const bodyParser = require('koa-bodyparser')
 const koaBody = require('koa-body')
 const koaLogger = require('koa-logger')
+const koaStatic = require('koa-static')
+const path = require('path')
 
 const routers = require('@/routers/index')
 const RouterResponse = require('@/middlewares/RouterResponse/index')
@@ -16,14 +17,18 @@ app.use(CatchError)
 app.use(RouterResponse())
 
 // 解析post请求参数
-// app.use(bodyParser())
-app.use(koaBody())
-
-// 判断是否有权限
-// app.use()
+app.use(
+  koaBody({
+    multipart: true,
+  })
+)
 
 // 打印请求信息
 app.use(koaLogger())
+
+// 开启静态资源服务
+app.use(koaStatic(path.join(__dirname, '/static')))
+
 // 设置路由
 app.use(routers.routes())
 
