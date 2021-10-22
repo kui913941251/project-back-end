@@ -1,6 +1,6 @@
 const RoleDao = require('@/models/Dao/RoleDao')
 
-const PageUril = require('@/utils/PageUtil')
+const PageUtil = require('@/utils/PageUtil')
 
 class RoleController {
   constructor() {}
@@ -8,7 +8,16 @@ class RoleController {
   async list(ctx) {
     const { roleName = '', pageNum = 1, pageSize = 10 } = ctx.request.body
     let res = await RoleDao.list({ roleName, pageNum, pageSize })
-    ctx.success({ message: '成功', data: PageUril(res, pageNum, pageSize) })
+    let pageRes = PageUtil(res, pageNum, pageSize)
+    pageRes.list = pageRes.list.map(item => {
+      return {
+        id: item.id,
+        roleName: item.role_name,
+        updateTime: item.update_time,
+        createTime: item.create_time
+      }
+    })
+    ctx.success({ message: '成功', data: pageRes })
   }
 
   async add(ctx) {

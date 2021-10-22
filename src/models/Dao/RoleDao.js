@@ -4,7 +4,7 @@ class RoleDao {
   constructor() {}
   async list({ roleName = null, pageNum = 1, pageSize = 10 }) {
     const start = (pageNum - 1) * pageSize
-    const sql = `select count(*) from system_role;select * from system_role limit ?,?`
+    const sql = `select count(*) from system_role;select * from system_role group by create_time desc, id desc limit ?,? `
     return await db.query(sql, [start, +pageSize])
   }
 
