@@ -3,6 +3,7 @@ const Koa = require('koa')
 const koaBody = require('koa-body')
 const koaLogger = require('koa-logger')
 const koaStatic = require('koa-static')
+const koaCors = require("koa-cors")
 const path = require('path')
 
 const routers = require('@/routers/index')
@@ -10,6 +11,8 @@ const RouterResponse = require('@/middlewares/RouterResponse/index')
 const CatchError = require('@/middlewares/CatchError/index')
 
 const app = new Koa()
+
+app.use(koaCors())
 
 app.use(CatchError)
 
