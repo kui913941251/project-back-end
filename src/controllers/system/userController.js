@@ -52,7 +52,11 @@ class UserController {
       captchaRedis.destroy(username)
       ctx.success({
         message: '登录成功',
-        data: token,
+        data: {
+          username: user.username,
+          authList: user.authList,
+          token
+        },
       })
     } else {
       ctx.fail({ message: '用户名或密码错误' })
