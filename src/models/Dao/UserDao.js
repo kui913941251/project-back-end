@@ -24,10 +24,13 @@ class UserDao {
     return await db.query(sql, [username, password])
   }
 
-  async userList({ pageNum, pageSize }) {
+  async userList({ username = "", pageNum, pageSize }) {
+    username = "%" + username + "%"
     const start = (pageNum - 1) * pageSize
-    const sql = `select count(*) from ${tableName} where is_delete = 0;select username,create_time as createTime from ${tableName} where is_delete = 0 limit ?,?`
-    return await db.query(sql, [start, +pageSize])
+    const sql =
+      `select count(*) from ${tableName} where is_delete = 0 and (username like ? or ? = null);` +
+      `select * from ${tableName} where is_delete = 0 and (username like ? or ? = null) limit ?,?`
+    return await db.query(sql, [username, username, username, username, start, +pageSize])
   }
 
   async deleteUser({ userId }) {

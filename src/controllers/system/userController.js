@@ -17,11 +17,11 @@ class UserController {
       return ctx.fail({ message: '请传入验证码' })
     }
 
-    // let saveCaptcha = await captchaRedis.get(username)
-    // if (saveCaptcha !== captcha.toLowerCase()) {
-    //   ctx.fail({ message: '验证码不正确' })
-    //   return
-    // }
+    let saveCaptcha = await captchaRedis.get(username)
+    if (saveCaptcha !== captcha.toLowerCase()) {
+      ctx.fail({ message: '验证码不正确' })
+      return
+    }
 
     let res = await UserDao.login({ username, password: encryptedPassword(password) })
     if (res.length === 1) {
@@ -35,7 +35,7 @@ class UserController {
       user.token = token
       // 获取用户权限
       let authList = await UserDao.getUserAuthList({ userId: user.id })
-      user.authList = authList && authList.map((item) => item.auth_code)
+      user.authCodeList = authList && authList.map((item) => item.auth_code)
       let userSetRes = await userRedis.setex(token, expires, user).catch((err) => {
         console.log(err)
       })
@@ -54,7 +54,7 @@ class UserController {
         message: '登录成功',
         data: {
           username: user.username,
-          authList: user.authList,
+          authCodeList: user.authCodeList,
           token
         },
       })
@@ -127,9 +127,9 @@ class UserController {
   }
 
   async userList(ctx) {
-    const { pageNum = 1, pageSize = 10 } = ctx.request.body
+    const { pageNum = 1, pageSize = 10, username = "" } = ctx.request.body
 
-    let res = await UserDao.userList({ pageNum, pageSize })
+    let res = await UserDao.userList({ pageNum, pageSize, username })
 
     if (res.length === 2) {
       ctx.success({ data: PageUtil(res, pageNum, pageSize) })
