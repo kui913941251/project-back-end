@@ -6,7 +6,10 @@ async function getAuthTreeByPid(pid = null) {
     let arr = []
     for (let i = 0; i < res.length; i++) {
       let auth = {
-        ...res[i],
+        id: res[i].id,
+        authCode: res[i].auth_code,
+        authName: res[i].auth_name,
+        des: res[i].des,
         children: await getAuthTreeByPid(res[i].id),
       }
       arr.push(auth)
