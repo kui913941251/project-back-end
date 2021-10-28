@@ -14,19 +14,19 @@ class AuthDao {
     }
   }
 
-  async add({ authName = '', authCode = '', pid = null }) {
-    const sql = `insert into system_auth (auth_name, auth_code, pid) values (?,?,?)`
-    return await db.query(sql, [authName, authCode, pid])
+  async add({ authName = '', authCode = '', level, pid = null }) {
+    const sql = `insert into system_auth (auth_name, auth_code, pid, level) values (?,?,?,?)`
+    return await db.query(sql, [authName, authCode, pid, level])
   }
 
-  async update({ authName, authCode, authId }) {
+  async update({ authName, authCode, id }) {
     const sql = `update system_auth set auth_name = ? , auth_code = ? where id = ?`
-    return await db.query(sql, [authName, authCode, authId])
+    return await db.query(sql, [authName, authCode, id])
   }
 
-  async delete({ authId }) {
+  async delete({ id }) {
     const sql = `delete from system_auth where id = ?`
-    return await db.query(sql, [authId])
+    return await db.query(sql, [id])
   }
 }
 

@@ -9,7 +9,7 @@ async function getAuthTreeByPid(pid = null) {
         id: res[i].id,
         authCode: res[i].auth_code,
         authName: res[i].auth_name,
-        des: res[i].des,
+        level: res[i].level,
         children: await getAuthTreeByPid(res[i].id),
       }
       arr.push(auth)
@@ -32,14 +32,18 @@ class AuthController {
   }
 
   async add(ctx) {
-    let { authName, authCode, pid } = ctx.request.body
+    let { authName, authCode, level, pid } = ctx.request.body
     if (!authName) {
       return ctx.fail({ message: '请传入权限名称' })
     } else if (!authCode) {
       return ctx.fail({ message: '请传入权限标识' })
+    } else if (!level) {
+      return ctx.fail({ message: '请传入权限层级' })
+    } else if ([1, 2, 3].indexOf(+level) === -1) {
+      return ctx.fail({ message: '请传入正确的权限层级' })
     }
 
-    let res = await AuthDao.add({ authName, authCode, pid })
+    let res = await AuthDao.add({ authName, authCode, level, pid })
 
     if (res.affectedRows === 1) {
       ctx.success({ message: '添加成功' })
@@ -49,16 +53,16 @@ class AuthController {
   }
 
   async update(ctx) {
-    let { authName, authCode, authId } = ctx.request.body
+    let { authName, authCode, id } = ctx.request.body
     if (!authName) {
       return ctx.fail({ message: '请传入权限名称' })
     } else if (!authCode) {
       return ctx.fail({ message: '请传入权限标识' })
-    } else if (!authId) {
+    } else if (!id) {
       return ctx.fail({ message: '请传入权限id' })
     }
 
-    let res = await AuthDao.update({ authName, authCode, authId })
+    let res = await AuthDao.update({ authName, authCode, id })
 
     if (res.affectedRows === 1) {
       ctx.success({ message: '修改成功' })
@@ -68,15 +72,15 @@ class AuthController {
   }
 
   async delete(ctx) {
-    let { authId } = ctx.request.body
-    if (!authId) {
+    let { id } = ctx.request.body
+    if (!id) {
       return ctx.fail({ message: '请传入权限id' })
     }
-    let childAuth = await AuthDao.findAuthByPid({ pid: authId })
+    let childAuth = await AuthDao.findAuthByPid({ pid: id })
     if (childAuth.length > 0) {
       return ctx.fail({ message: '该权限存在子权限，无法删除' })
     } else {
-      let res = await AuthDao.delete({ authId })
+      let res = await AuthDao.delete({ id })
 
       if (res.affectedRows >= 1) {
         ctx.success({ message: '删除成功' })
