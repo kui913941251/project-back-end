@@ -2,13 +2,13 @@ const db = require('@/db/mysql/index')
 
 class RoleDao {
   constructor() {}
-  async list({ roleName = null, pageNum = 1, pageSize = 10 }) {
+  async list({ roleName = null, pageNum = 1, pageSize = 10, filters = "" }) {
     roleName = '%' + roleName + '%'
     const start = (pageNum - 1) * pageSize
     const sql =
-      'select count(*) from system_role where (role_name like ? or ? = null) and id not in (1);' +
-      'select * from system_role where (role_name like ? or ? = null) and id not in (1) group by create_time desc, id desc limit ?,? '
-    return await db.query(sql, [roleName, roleName, roleName, roleName, start, +pageSize])
+      'select count(*) from system_role where (role_name like ? or ? = null) and id not in (?);' +
+      'select * from system_role where (role_name like ? or ? = null) and id not in (?) group by create_time desc, id desc limit ?,? '
+    return await db.query(sql, [roleName, roleName, filters, roleName, roleName, filters, start, +pageSize])
   }
 
   async add({ roleName, des }) {
