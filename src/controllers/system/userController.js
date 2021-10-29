@@ -7,7 +7,33 @@ const expires = 3600 * 24 * 1 // 默认一天
 
 class UserController {
   constructor() {}
-  async login(ctx, next) {
+  async register(ctx) {
+    const { username, password } = ctx.request.body
+
+    if (!username) {
+      return ctx.fail({ message: '请传入用户名' })
+    } else if (!password) {
+      return ctx.fail({ message: '请传入密码' })
+    }
+
+    let userRes = await UserDao.findUserByName({ username })
+
+    if (userRes && userRes.length !== 0) {
+      return ctx.fail({ message: '用户名已存在' })
+    }
+
+    let res = await UserDao.register({ username, password: encryptedPassword(password) })
+
+    if (res.affectedRows === 1) {
+      ctx.success({
+        message: '注册成功',
+      })
+    } else {
+      ctx.fail({ message: '注册失败' })
+    }
+  }
+
+  async login(ctx) {
     const { username, password, captcha } = ctx.request.body
     if (!username) {
       return ctx.fail({ message: '请传入用户名' })
@@ -34,17 +60,17 @@ class UserController {
       user.expires = Date.now() + expires * 1000
       user.token = token
       // 获取用户权限
-      let authList = await UserDao.getUserAuthList({ userId: user.id })
+      let authList = await UserDao.getUserAuthList({ id: user.id })
       user.authCodeList = authList && authList.map((item) => item.auth_code)
       let userSetRes = await userRedis.setex(token, expires, user).catch((err) => {
-        console.log(err)
+        throw err
       })
       if (!userSetRes) {
         return ctx.fail({ message: '登录失败' })
       }
       // redis记录当前用户登录的token
       let tokenSetRes = await tokenRedis.setex(user.username, expires, token).catch((err) => {
-        console.log(err)
+        throw err
       })
       if (!tokenSetRes) {
         return ctx.fail({ message: '登录失败' })
@@ -55,7 +81,7 @@ class UserController {
         data: {
           username: user.username,
           authCodeList: user.authCodeList,
-          token
+          token,
         },
       })
     } else {
@@ -79,7 +105,7 @@ class UserController {
     }
   }
 
-  async logout(ctx, next) {
+  async logout(ctx) {
     let token = ctx.get('Authorization')
     if (!token) {
       ctx.fail({ message: '请传入token' })
@@ -92,42 +118,37 @@ class UserController {
         userRedis.destroy(user.username)
         ctx.success({ message: '退出成功' })
       }
-      console.log(user)
     }
   }
 
-  async registerUser(ctx, next) {
-    try {
-      const { username, password } = ctx.request.body
+  async add(ctx) {
+    const { username, password } = ctx.request.body
 
-      if (!username) {
-        return ctx.fail({ message: '请传入用户名' })
-      } else if (!password) {
-        return ctx.fail({ message: '请传入密码' })
-      }
+    if (!username) {
+      return ctx.fail({ message: '请传入用户名' })
+    } else if (!password) {
+      return ctx.fail({ message: '请传入密码' })
+    }
 
-      let userRes = await UserDao.findUserByName({ username })
+    let userRes = await UserDao.findUserByName({ username })
 
-      if (userRes && userRes.length !== 0) {
-        return ctx.fail({ message: '用户名已存在' })
-      }
+    if (userRes && userRes.length !== 0) {
+      return ctx.fail({ message: '用户名已存在' })
+    }
 
-      let res = await UserDao.register({ username, password: encryptedPassword(password) })
+    let res = await UserDao.register({ username, password: encryptedPassword(password) })
 
-      if (res.affectedRows === 1) {
-        ctx.success({
-          message: '注册成功',
-        })
-      } else {
-        ctx.fail({ message: '注册失败' })
-      }
-    } catch (error) {
-      console.log(error)
+    if (res.affectedRows === 1) {
+      ctx.success({
+        message: '添加成功',
+      })
+    } else {
+      ctx.fail({ message: '添加失败' })
     }
   }
 
   async userList(ctx) {
-    const { pageNum = 1, pageSize = 10, username = "" } = ctx.request.body
+    const { pageNum = 1, pageSize = 10, username = '' } = ctx.request.body
 
     let res = await UserDao.userList({ pageNum, pageSize, username })
 
@@ -136,14 +157,33 @@ class UserController {
     }
   }
 
-  async deleteUser(ctx) {
-    const { userId } = ctx.request.body
+  async update(ctx) {
+    const { username, id, password } = ctx.request.body
+    if (!username) {
+      return ctx.fail({ message: '请传入用户名' })
+    } else if (!id) {
+      return ctx.fail({ message: '请传入用户id' })
+    } else if (!password) {
+      return ctx.fail({ message: '请传入密码' })
+    }
 
-    if (!userId) {
+    const res = await UserDao.update({ username, id, password: encryptedPassword(password) })
+
+    if (res.affectedRows > 0) {
+      ctx.success({ message: '修改成功' })
+    } else {
+      ctx.fail({ message: '修改失败' })
+    }
+  }
+
+  async deleteUser(ctx) {
+    const { id } = ctx.request.body
+
+    if (!id) {
       return ctx.fail({ message: '请传入用户id' })
     }
 
-    let userRes = await UserDao.findUserById({ userId })
+    let userRes = await UserDao.findUserById({ id })
 
     if (userRes && userRes.length === 0) {
       return ctx.fail({ message: '该用户不存在' })
@@ -151,7 +191,7 @@ class UserController {
 
     let user = userRes[0]
 
-    let res = await UserDao.deleteUser({ userId: user.id })
+    let res = await UserDao.deleteUser({ id: user.id })
 
     if (res.affectedRows === 1) {
       ctx.success({ message: '删除成功' })
@@ -161,13 +201,13 @@ class UserController {
   }
 
   async bindRole(ctx) {
-    const { userId, roleIdList = [] } = JSON.parse(ctx.request.body)
-    if (!userId) {
+    const { id, roleIdList = [] } = JSON.parse(ctx.request.body)
+    if (!id) {
       return ctx.fail({ message: '请传入用户id' })
     } else if (!Array.isArray(roleIdList)) {
       return ctx.fail({ message: '请传入角色id数组' })
     }
-    let res = await UserDao.bindRole({ userId, roleIdList })
+    let res = await UserDao.bindRole({ id, roleIdList })
     if (res) {
       ctx.success({ message: '绑定成功' })
     } else {
