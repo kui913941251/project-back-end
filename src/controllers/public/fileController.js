@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const FileDao = require('@/models/Dao/FileDao')
+const FileDao = require('@/models/Dao/public/FileDao')
 
 class FileController {
   constructor() {}

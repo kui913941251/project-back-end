@@ -1,4 +1,4 @@
-const RoleDao = require('@/models/Dao/RoleDao')
+const RoleDao = require('@/models/Dao/system/RoleDao')
 
 const PageUtil = require('@/utils/PageUtil')
 

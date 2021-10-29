@@ -1,4 +1,4 @@
-const UserDao = require('@/models/Dao/UserDao')
+const UserDao = require('@/models/Dao/system/UserDao')
 const PageUtil = require('@/utils/PageUtil')
 const { getToken, encryptedPassword } = require('@/utils/AuthUtils')
 const { tokenRedis, userRedis, captchaRedis } = require('@/db/redis')

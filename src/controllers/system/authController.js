@@ -1,4 +1,4 @@
-const AuthDao = require('@/models/Dao/AuthDao')
+const AuthDao = require('@/models/Dao/system/AuthDao')
 
 async function getAuthTreeByPid(pid = null) {
   let res = await AuthDao.findAuthByPid({ pid })
