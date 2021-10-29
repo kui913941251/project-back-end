@@ -12,15 +12,7 @@ function toSha256(value) {
   return cryptojs.SHA256(value).toString()
 }
 
-function getUrl(url) {
-  if (url.indexOf('?') !== -1) {
-    url = url.split('?')[0]
-  }
-  return url
-}
-
 module.exports = {
   toSimpleObject,
   toSha256,
-  getUrl,
 }
