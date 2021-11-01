@@ -82,6 +82,7 @@ class UserController {
           username: user.username,
           authCodeList: user.authCodeList,
           token,
+          avatar: user.avatar,
         },
       })
     } else {
@@ -118,6 +119,24 @@ class UserController {
         userRedis.destroy(user.username)
         ctx.success({ message: '退出成功' })
       }
+    }
+  }
+
+  async info(ctx) {
+    let token = ctx.get('Authorization')
+    let user = await userRedis.get(token)
+
+    let res = await UserDao.findUserById({ id: user.id })
+
+    if (res.length > 0) {
+      ctx.success({
+        data: {
+          username: res[0].username,
+          authCodeList: user.authCodeList,
+          token: user.token,
+          avatar: res[0].avatar,
+        },
+      })
     }
   }
 
