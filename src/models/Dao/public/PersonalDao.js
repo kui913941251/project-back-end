@@ -1,4 +1,4 @@
-const db = require("@/db/mysql")
+const db = require('@/db/mysql')
 
 class PersonalDao {
   constructor() {}
@@ -8,7 +8,10 @@ class PersonalDao {
     return await db.query(sql, [id])
   }
 
+  async changeAvatar({ id, avatarPath }) {
+    const sql = `update system_user set avatar = ? where id = ?`
+    return await db.query(sql, [avatarPath, id])
+  }
 }
-
 
 module.exports = new PersonalDao()

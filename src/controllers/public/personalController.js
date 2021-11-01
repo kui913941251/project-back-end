@@ -22,6 +22,7 @@ class PersonalController {
           data: {
             username: res[0].username,
             createTime: res[0].create_time,
+            avatar: res[0].avatar
           },
         })
       } else {
@@ -63,6 +64,24 @@ class PersonalController {
     } else {
       FileUtils.remove(filePath)
       ctx.fail({ message: '上传失败' })
+    }
+  }
+
+  async changeAvatar(ctx) {
+    const { avatarPath } = ctx.request.body
+    const token = ctx.get('Authorization')
+
+    if (!avatarPath) return ctx.fail({ message: '请传入头像url' })
+
+    let user = await userRedis.get(token)
+
+    if (user) {
+      let res = await PersonalDao.changeAvatar({ id: user.id, avatarPath })
+      if (res.affectedRows > 0) {
+        ctx.success({ message: '修改成功' })
+      } else {
+        ctx.fail({ message: '修改失败' })
+      }
     }
   }
 }
