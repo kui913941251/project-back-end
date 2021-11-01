@@ -8,9 +8,14 @@ class FileDao {
     return await db.query(sql, [fileId])
   }
 
-  async add({ path, fileName }) {
-    const sql = `insert into base_file (file_path, file_name) values (?, ?)`
-    return await db.query(sql, [path, fileName])
+  async findFileByHash({ hash }) {
+    const sql = `select * from base_file where hash = ?`
+    return await db.query(sql, [hash])
+  }
+
+  async add({ path, fileName, hash }) {
+    const sql = `insert into base_file (file_path, file_name, hash) values (?, ?, ?)`
+    return await db.query(sql, [path, fileName, hash])
   }
 
   async delete({ fileId }) {
