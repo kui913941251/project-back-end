@@ -23,6 +23,9 @@ app.use(RouterResponse())
 app.use(
   koaBody({
     multipart: true,
+    formidable: {
+      hash: "md5"
+    }
   })
 )
 
