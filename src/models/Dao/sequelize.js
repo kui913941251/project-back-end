@@ -10,9 +10,11 @@ const sequelize = new Sequelize(mysqlConfig.database.DATABASE, mysqlConfig.datab
   define: {
     freezeTableName: true,  // 表名字不加s
     timestamps: true, // 开启保存时间戳
-    underscored:true, // 更新时间、创建时间、是否删除字段 驼峰、下划线映射
+    underscored:true, // 开启驼峰(js)与下划线(数据库)字段的映射
     updatedAt: 'updateTime',
     createdAt: 'createTime',
+    paranoid: true, // 开启逻辑删除
+    deletedAt: "deleteTime"
   },
 })
 
