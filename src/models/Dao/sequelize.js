@@ -13,8 +13,8 @@ const sequelize = new Sequelize(mysqlConfig.database.DATABASE, mysqlConfig.datab
     underscored:true, // 开启驼峰(js)与下划线(数据库)字段的映射
     updatedAt: 'updateTime',
     createdAt: 'createTime',
-    paranoid: true, // 开启逻辑删除
-    deletedAt: "deleteTime"
+    // paranoid: true, // 开启逻辑删除
+    // deletedAt: "deleteTime"
   },
 })
 
