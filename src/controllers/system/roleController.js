@@ -8,7 +8,7 @@ class RoleController {
   async list(ctx) {
     const { roleName = '', pageNum = 1, pageSize = 10 } = ctx.request.body
     let res = await RoleDao.list({ roleName, pageNum, pageSize, filters: ""})
-    let pageRes = PageUtil(res, pageNum, pageSize)
+    let pageRes = PageUtil(res[1], res[0][0]["count(*)"], pageNum, pageSize)
     pageRes.list = pageRes.list.map((item) => {
       return {
         id: item.id,

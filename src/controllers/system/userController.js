@@ -172,7 +172,7 @@ class UserController {
     let res = await UserDao.userList({ pageNum, pageSize, username })
 
     if (res.length === 2) {
-      ctx.success({ data: PageUtil(res, pageNum, pageSize) })
+      ctx.success({ data: PageUtil(res[1], res[0][0]["count(*)"], pageNum, pageSize) })
     }
   }
 

@@ -1,9 +1,8 @@
-module.exports = function(sqlData, pageNum, pageSize) {
-  const count = sqlData[0][0]["count(*)"]
+module.exports = function(list, count, pageNum, pageSize) {
   return {
     total: count,
     current: pageNum,
     totalPage: Math.ceil(count / pageSize),
-    list: sqlData[1]
+    list: list
   }
 }
