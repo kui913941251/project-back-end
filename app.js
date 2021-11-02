@@ -9,6 +9,7 @@ const path = require('path')
 const routers = require('@/routers/index')
 const RouterResponse = require('@/middlewares/RouterResponse/index')
 const CatchError = require('@/middlewares/CatchError/index')
+const addTransaction = require("@/middlewares/Transaction")
 
 const app = new Koa()
 
@@ -34,6 +35,9 @@ app.use(koaLogger())
 
 // 开启静态资源服务
 app.use(koaStatic(path.join(__dirname, '/static')))
+
+// 添加全局事物处理
+app.use(addTransaction)
 
 // 设置路由
 app.use(routers.routes())
