@@ -2,7 +2,7 @@ const UserDao = require('@/models/Dao/system/UserDao')
 const PageUtil = require('@/utils/PageUtil')
 const { getToken, encryptedPassword } = require('@/utils/AuthUtils')
 const { tokenRedis, userRedis, captchaRedis } = require('@/db/redis')
-const generateCaptcha = require('@/utils/captcha')
+const generateCaptcha = require('@/utils/Captcha')
 const expires = 3600 * 24 * 1 // 默认一天
 
 class UserController {
