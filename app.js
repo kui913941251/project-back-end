@@ -8,7 +8,7 @@ const path = require('path')
 
 const routers = require('@/routers/index')
 const RouterResponse = require('@/middlewares/RouterResponse/index')
-const CatchError = require('@/middlewares/CatchError/index')
+const CatchError = require('@/middlewares/FatchError/index')
 const addTransaction = require("@/middlewares/Transaction")
 
 const app = new Koa()
