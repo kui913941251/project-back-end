@@ -15,6 +15,7 @@ function save(file, fileMkd, filePath) {
   const readerStream = fs.createReadStream(file.path)
   const wirteStream = fs.createWriteStream(path.join(baseUrl, filePath))
   readerStream.pipe(wirteStream)
+  fs.unlinkSync(file.path)
 }
 
 function remove(filePath) {
