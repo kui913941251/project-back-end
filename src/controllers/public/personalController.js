@@ -22,7 +22,7 @@ class PersonalController {
           data: {
             username: res[0].username,
             createTime: res[0].create_time,
-            avatar: res[0].avatar
+            avatar: res[0].avatar,
           },
         })
       } else {
@@ -35,12 +35,16 @@ class PersonalController {
 
   async importAvatar(ctx) {
     const { file } = ctx.request.files
-    const { fileName } = ctx.request.body
+    const { fileName, fileType } = ctx.request.body
+    const token = ctx.get("Authorization")
+    let user = await userRedis.get(token)
 
     if (!file) {
       return ctx.fail({ message: '请传入文件' })
     } else if (!fileName) {
       return ctx.fail({ message: '请传入文件名' })
+    } else if (!fileType) {
+      return ctx.fail({ message: '请传入文件类型' })
     }
 
     let fileMkd = '/file/avatar'
@@ -57,7 +61,7 @@ class PersonalController {
 
     FileUtils.save(file, fileMkd, filePath)
 
-    let res = await FileDao.add({ path: filePath, fileName: fileName, hash })
+    let res = await FileDao.add({ filePath, fileName, hash, fileType: +fileType, uploader: user.id })
 
     if (res.affectedRows >= 1) {
       ctx.success({ message: '上传成功', data: filePath })
