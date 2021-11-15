@@ -13,9 +13,9 @@ class FileDao {
     return await db.query(sql, [hash])
   }
 
-  async add({ path, fileName, hash }) {
-    const sql = `insert into base_file (file_path, file_name, hash) values (?, ?, ?)`
-    return await db.query(sql, [path, fileName, hash])
+  async add({ filePath, fileName, hash, fileType, uploader }) {
+    const sql = `insert into base_file (file_path, file_name, hash, file_type, uploader) values (?, ?, ?, ?, ?)`
+    return await db.query(sql, [filePath, fileName, hash, fileType, uploader])
   }
 
   async delete({ fileId }) {
