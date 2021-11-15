@@ -2,8 +2,6 @@ const path = require('path')
 
 // 日志根目录
 const basePath = path.join(process.cwd(), '/src/logs')
-console.log(basePath)
-
 const errorPath = '/error'
 const errorLogName = 'error'
 const errorLogPath = path.join(basePath, errorPath, errorLogName)
