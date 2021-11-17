@@ -1,6 +1,10 @@
 const GoodsDao = require('@/models/Dao/mall/GoodsDao')
+const GoodsOptionDao = require('@/models/Dao/mall/GoodsOptionDao')
 const PageUtil = require('@/utils/PageUtil')
 const { Op } = require('sequelize')
+const { userRedis } = require('@/db/redis/index')
+const fs = require('fs')
+const FileUtils = require('@/utils/FileUtils')
 
 class GoodsController {
   constructor() {}
@@ -22,10 +26,12 @@ class GoodsController {
   }
 
   async add(ctx) {
-    const { goodsName, goodsDesc } = ctx.request.body
+    const { goodsName, goodsDesc, options } = ctx.request.body
 
     if (!goodsName) {
       return ctx.fail({ message: '请传入商品名称' })
+    } else if (!options) {
+      return ctx.fail({ message: '请传入类型组合' })
     }
 
     let existGoods = await GoodsDao.findOne({
@@ -38,16 +44,37 @@ class GoodsController {
       return ctx.fail({ message: '该商品名称已经存在' })
     }
 
-    let res = await GoodsDao.create({
-      goodsName,
-      goodsDesc,
-    })
+    ctx.transaction(async (t) => {
+      let goodsRes = await GoodsDao.create(
+        {
+          goodsName,
+          goodsDesc,
+        },
+        { transaction: t }
+      )
 
-    if (res) {
-      ctx.success({ message: '添加成功' })
-    } else {
-      ctx.fail({ message: '添加失败' })
-    }
+      console.log(t)
+
+      options.forEach((option, index) => {
+        let optionCount = index
+        option.forEach(async (item) => {
+          await GoodsOptionDao.create(
+            {
+              goodsId: goodsRes.id,
+              optionName: item.optionName,
+              optionCount,
+            },
+            { transaction: t }
+          )
+        })
+      })
+
+      if (goodsRes) {
+        ctx.success({ message: '添加成功' })
+      } else {
+        ctx.fail({ message: '添加失败' })
+      }
+    })
   }
 
   async detail(ctx) {
@@ -117,6 +144,34 @@ class GoodsController {
     } else {
       ctx.fail({ message: '删除失败' })
     }
+  }
+
+  async import(ctx) {
+    const { file } = ctx.request.files
+    const { fileType } = ctx.request.body
+
+    if (!file) {
+      return ctx.fail({ message: '请传入文件' })
+    } else if (!fileType) {
+      return ctx.fail({ message: '请传入文件类型' })
+    }
+
+    let fileName = ctx.request.body.fileName || file.name
+    let fileMkd = '/file/avatar'
+    let extname = path.extname(fileName)
+    let hash = file.hash
+    let targetFileName = hash + extname
+    let filePath = path.join('/file/avatar', `/${targetFileName}`)
+
+    let token = ctx.get('Authorization')
+
+    let user = await userRedis.get(token)
+
+    console.log(file)
+
+    fs.unlinkSync(file.path)
+
+    ctx.success({ data: file })
   }
 }
 

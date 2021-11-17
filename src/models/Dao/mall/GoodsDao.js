@@ -18,7 +18,7 @@ const GoodsDao = sequelize.define("mall_goods", {
 })
 
 
-GoodsDao.sync()
+// GoodsDao.sync()
 
 
 module.exports = GoodsDao
