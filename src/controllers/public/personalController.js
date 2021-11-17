@@ -53,13 +53,14 @@ class PersonalController {
     let targetFileName = hash + extname
     let filePath = path.join('/file/avatar', `/${targetFileName}`)
 
+    
+    FileUtils.save(file, fileMkd, filePath)
+
     let repeatVerify = await FileDao.findFileByHash({ hash })
 
     if (repeatVerify.length > 0) {
       return ctx.success({ message: '上传成功', data: repeatVerify[0].file_path })
     }
-
-    FileUtils.save(file, fileMkd, filePath)
 
     let res = await FileDao.add({ filePath, fileName, hash, fileType: +fileType, uploader: user.id })
 
