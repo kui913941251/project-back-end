@@ -23,7 +23,45 @@ class GoodsController {
       offset: pageNum - 1,
     })
 
-    ctx.success({ data: PageUtil(res.rows, res.count, pageNum, pageSize) })
+    let list = res.rows.map((item) => {
+      return {
+        ...item.dataValues,
+      }
+    })
+
+    for (let i = 0; i < list.length; i++) {
+      let item = list[i]
+      let allOptions = await GoodsOptionDao.findAll({
+        where: {
+          goodsId: item.id,
+        },
+      })
+      let parentOption = allOptions
+        .filter((item) => item.pid === null)
+        .map((item) => {
+          return {
+            id: item.id,
+            goodsId: item.goodsId,
+            optionName: item.optionName,
+            children: [],
+          }
+        })
+      parentOption.forEach((parent) => {
+        parent.children = allOptions
+          .filter((item) => item.pid === parent.id)
+          .map((item) => {
+            return {
+              id: item.id,
+              pid: item.pid,
+              goodsId: item.goodsId,
+              optionName: item.optionName,
+            }
+          })
+      })
+      item.options = parentOption
+    }
+
+    ctx.success({ data: PageUtil(list, res.count, pageNum, pageSize) })
   }
 
   async add(ctx) {
@@ -221,7 +259,7 @@ class GoodsController {
               transaction: t,
             }
           )
-          
+
           if (resGoods) {
             ctx.success({ message: '修改成功' })
           } else {
