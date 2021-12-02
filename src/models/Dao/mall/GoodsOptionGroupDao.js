@@ -1,30 +1,31 @@
 const sequelize = require("../sequelize")
 const Sequelize = require("sequelize")
 
-const GoodsOptionDao = sequelize.define("mall_goods_option", {
+const GoodsOptionGroupDao = sequelize.define("mall_goods_option_group", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     allowNull: false,
   },
-  pid: {
-    type: Sequelize.INTEGER
-  },
   goodsId: {
     type: Sequelize.INTEGER,
     allowNull: false
   },
-  optionName: {
+  groupIds: {
     type: Sequelize.STRING,
     allowNull: false
   },
-  optionCount: {
+  stocks: {
     type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  price: {
+    type: Sequelize.FLOAT,
     allowNull: false
   }
 })
 
 // GoodsOptionDao.sync()
 
-module.exports = GoodsOptionDao
+module.exports = GoodsOptionGroupDao

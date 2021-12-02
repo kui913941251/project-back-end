@@ -1,7 +1,8 @@
-const sequelize = require("../sequelize")
-const Sequelize = require("sequelize")
+const sequelize = require('../sequelize')
+const Sequelize = require('sequelize')
+const { formatDate } = require('@/utils/DateUtil')
 
-const GoodsDao = sequelize.define("mall_goods", {
+const GoodsDao = sequelize.define('mall_goods', {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -10,15 +11,23 @@ const GoodsDao = sequelize.define("mall_goods", {
   },
   goodsName: {
     type: Sequelize.STRING,
-    allowNull: false
+    allowNull: false,
   },
   goodsDesc: {
-    type: Sequelize.STRING
-  }
+    type: Sequelize.STRING,
+  },
+  optionMax: {
+    type: Sequelize.INTEGER,
+  },
+  createTime: {
+    type: Sequelize.DATE,
+    get() {
+      let time = this.getDataValue('createTime')
+      return formatDate(time, 'YYYY-MM-DD HH:mm:ss')
+    },
+  },
 })
 
-
 // GoodsDao.sync()
-
 
 module.exports = GoodsDao

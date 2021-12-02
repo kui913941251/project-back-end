@@ -1,5 +1,6 @@
 const GoodsDao = require('@/models/Dao/mall/GoodsDao')
 const GoodsOptionDao = require('@/models/Dao/mall/GoodsOptionDao')
+const GoodsOptionGroupDao = require('@/models/Dao/mall/GoodsOptionGroupDao')
 const PageUtil = require('@/utils/PageUtil')
 const { Op } = require('sequelize')
 const { userRedis } = require('@/db/redis/index')
@@ -44,36 +45,59 @@ class GoodsController {
       return ctx.fail({ message: '该商品名称已经存在' })
     }
 
-    ctx.transaction(async (t) => {
-      let goodsRes = await GoodsDao.create(
-        {
-          goodsName,
-          goodsDesc,
-        },
-        { transaction: t }
-      )
-
-      console.log(t)
-
-      options.forEach((option, index) => {
-        let optionCount = index
-        option.forEach(async (item) => {
-          await GoodsOptionDao.create(
+    await new Promise((resolve, reject) => {
+      ctx
+        .transaction(async (t) => {
+          // 创建goods
+          let goodsRes = await GoodsDao.create(
             {
-              goodsId: goodsRes.id,
-              optionName: item.optionName,
-              optionCount,
+              goodsName,
+              goodsDesc,
+              optionMax: options.length,
             },
             { transaction: t }
           )
-        })
-      })
+          // 添加组合类
+          for (let i = 0; i < options.length; i++) {
+            let option = options[i]
+            let optionCount = i
+            // 添加父类
+            let pres = await GoodsOptionDao.create(
+              {
+                goodsId: goodsRes.id,
+                optionName: option.optionName,
+                optionCount,
+              },
+              { transaction: t }
+            )
+            if (option.children && option.children.length > 0) {
+              for (let j = 0; j < option.children.length; j++) {
+                let item = option.children[j]
+                await GoodsOptionDao.create(
+                  {
+                    goodsId: goodsRes.id,
+                    optionName: item.optionName,
+                    optionCount,
+                    pid: pres.dataValues.id,
+                  },
+                  { transaction: t }
+                )
+              }
+            }
+          }
 
-      if (goodsRes) {
-        ctx.success({ message: '添加成功' })
-      } else {
-        ctx.fail({ message: '添加失败' })
-      }
+          if (goodsRes) {
+            ctx.success({ message: '添加成功' })
+          } else {
+            ctx.fail({ message: '添加失败' })
+          }
+          resolve()
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    }).catch((err) => {
+      throw new Error(err)
     })
   }
 
@@ -88,42 +112,129 @@ class GoodsController {
       where: {
         id,
       },
-      attributes: ['goodsName', 'id', 'goodsDesc', 'createTime'],
+      attributes: ['goodsName', 'id', 'goodsDesc', 'createTime', 'optionMax'],
     })
 
+    let allOptions = await GoodsOptionDao.findAll({
+      where: {
+        goodsId: id,
+      },
+    })
+
+    let parentOption = allOptions
+      .filter((item) => item.dataValues.pid === null)
+      .map((item) => {
+        return {
+          id: item.dataValues.id,
+          goodsId: item.dataValues.goodsId,
+          optionName: item.dataValues.optionName,
+          children: [],
+        }
+      })
+    parentOption.forEach((parent) => {
+      parent.children = allOptions
+        .filter((item) => item.dataValues.pid === parent.id)
+        .map((item) => {
+          return {
+            id: item.dataValues.id,
+            pid: item.dataValues.pid,
+            goodsId: item.dataValues.goodsId,
+            optionName: item.dataValues.optionName,
+          }
+        })
+    })
+
+    let options = parentOption
+    let goodsInfo = {
+      ...goods.dataValues,
+      options,
+    }
+
     if (goods) {
-      ctx.success({ data: goods })
+      ctx.success({ data: goodsInfo })
     } else {
       ctx.fail({ message: '商品信息获取失败' })
     }
   }
 
   async update(ctx) {
-    const { id, goodsName, goodsDesc } = ctx.request.body
+    const { id, goodsName, goodsDesc, options } = ctx.request.body
 
     if (!id) {
       return ctx.fail({ message: '请传入商品id' })
     } else if (!goodsName) {
       return ctx.fail({ message: '请传入商品名称' })
+    } else if (!options) {
+      return ctx.fail({ message: '请传入类型组合' })
     }
 
-    let res = await GoodsDao.update(
-      {
-        goodsName,
-        goodsDesc,
-      },
-      {
-        where: {
-          id,
-        },
-      }
-    )
+    await new Promise((resolve, reject) => {
+      ctx
+        .transaction(async (t) => {
+          // 先删除所有类型
+          await GoodsOptionDao.destroy(
+            {
+              where: {
+                goodsId: id,
+              },
+            },
+            { transaction: t }
+          )
 
-    if (res) {
-      ctx.success({ message: '修改成功' })
-    } else {
-      ctx.fail({ message: '修改失败' })
-    }
+          // 添加类型
+          for (let i = 0; i < options.length; i++) {
+            let option = options[i]
+            let optionCount = i
+            // 添加父类
+            let pres = await GoodsOptionDao.create(
+              {
+                goodsId: id,
+                optionName: option.optionName,
+                optionCount,
+              },
+              { transaction: t }
+            )
+            if (option.children && option.children.length > 0) {
+              for (let j = 0; j < option.children.length; j++) {
+                let item = option.children[j]
+                await GoodsOptionDao.create(
+                  {
+                    goodsId: id,
+                    optionName: item.optionName,
+                    optionCount,
+                    pid: pres.dataValues.id,
+                  },
+                  { transaction: t }
+                )
+              }
+            }
+          }
+          let resGoods = await GoodsDao.update(
+            {
+              goodsName,
+              goodsDesc,
+            },
+            {
+              where: {
+                id,
+              },
+              transaction: t,
+            }
+          )
+          
+          if (resGoods) {
+            ctx.success({ message: '修改成功' })
+          } else {
+            ctx.fail({ message: '修改失败' })
+          }
+          resolve()
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    }).catch((err) => {
+      throw new Error(err)
+    })
   }
 
   async delete(ctx) {
@@ -166,8 +277,6 @@ class GoodsController {
     let token = ctx.get('Authorization')
 
     let user = await userRedis.get(token)
-
-    console.log(file)
 
     fs.unlinkSync(file.path)
 
