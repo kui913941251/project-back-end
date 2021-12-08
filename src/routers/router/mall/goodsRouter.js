@@ -11,5 +11,6 @@ goodsRouter
   .post('/update', LoginVerify, goodsController.update)
   .post('/delete', LoginVerify, goodsController.delete)
   .post("/import", LoginVerify, goodsController.import)
-
-module.exports = goodsRouter
+  .post("/addGroup", LoginVerify, goodsController.addGroup)
+  
+module.exports = goodsRouter  

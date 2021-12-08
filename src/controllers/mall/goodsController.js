@@ -59,6 +59,22 @@ class GoodsController {
           })
       })
       item.options = parentOption
+
+      let groupList = await GoodsOptionGroupDao.findAll({
+        where: {
+          goodsId: item.id,
+        },
+      })
+      item.groupList = groupList.map((group) => {
+        let res = group.dataValues
+        return {
+          id: res.id,
+          goodsId: res.goodsId,
+          compose: res.groupIds.split(',').map(item => +item),
+          stocks: res.stocks,
+          price: res.price,
+        }
+      })
     }
 
     ctx.success({ data: PageUtil(list, res.count, pageNum, pageSize) })
@@ -319,6 +335,55 @@ class GoodsController {
     fs.unlinkSync(file.path)
 
     ctx.success({ data: file })
+  }
+
+  async addGroup(ctx) {
+    const { id, groupList } = ctx.request.body
+    if (!id) {
+      return ctx.fail({ message: '请传入商品id' })
+    } else if (!groupList) {
+      return ctx.fail({ message: '请传入商品组合' })
+    }
+
+    await new Promise((resolve, reject) => {
+      ctx
+        .transaction(async (t) => {
+          await GoodsOptionGroupDao.destroy(
+            {
+              where: {
+                goodsId: id,
+              },
+            },
+            {
+              transaction: t,
+            }
+          )
+
+          for (let i = 0; i < groupList.length; i++) {
+            let item = groupList[i]
+            await GoodsOptionGroupDao.create(
+              {
+                goodsId: id,
+                groupIds: item.compose.join(','),
+                stocks: item.stocks,
+                price: item.price,
+              },
+              {
+                transaction: t,
+              }
+            )
+          }
+
+          ctx.success({ message: '添加成功' })
+
+          resolve()
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    }).catch((err) => {
+      throw new Error(err)
+    })
   }
 }
 
